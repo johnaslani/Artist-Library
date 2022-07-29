@@ -14,7 +14,6 @@ function searchNapsterArtist(artistSearchInput) {
         + '&type=artist&per_type_limit=1&apikey='
         + API_KEY
     );
-    // var locQueryUrl = 'https://api.napster.com/v2.0/playlists?apikey=ZTk2YjY4MjMtMDAzYy00MTg4LWE2MjYtZDIzNjJmMmM0YTdm';
   
     fetch(artistSearchUrl)
       .then(function (response) {
