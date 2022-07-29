@@ -3,6 +3,7 @@ var resultTextEl = document.querySelector('#result-text');
 var resultContentEl = document.querySelector('#result-content');
 var searchFormEl = document.querySelector('#search-form');
 var formatEl = document.querySelector('#format-input');
+var bioSummary = document.querySelector('#bio');
 
 
 console.log(searchTerm);
@@ -37,7 +38,8 @@ const options = {
         linkEl.textContent = response.title;
         textEl.textContent = wiki;
         resultTextEl.append(linkEl); 
-        resultTextEl.append(textEl);
+        bioSummary.textContent = wiki;
+        console.log(bioSummary);
      
     })
     .catch((err) => console.error(err));
@@ -58,6 +60,9 @@ function handleSearchFormSubmit(event) {
       console.error('You need a search input value!');
       return;
     }
+
+    // localStorage.setItem("lastname", searchInputVal);
+
   if (formatInputVal === "wiki") {
     searchWiki(searchInputVal);
   }
