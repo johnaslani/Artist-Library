@@ -9,30 +9,32 @@
 </head>
 <body>
 
-    <div class="flex-row align-start align-stretch-md align-content-start align-content-stretch-md min-100-vh bg-primary">
-      <div class="col-12 col-md-3 bg-light p-3">
+    <section class="">
+      <div class="">
         <h1 class="text-primary">Artists Search</h1>
         <form id="search-form" class="mb-2">
-          <input id="search-input" class="form-input w-100" type="text" placeholder="Search!">
-          <select id="format-input" class="form-input w-100">
+          <input id="search-input" class="" type="text" placeholder="Search!">
+          <select id="format-input" class="">
             <option value="" disabled selected>Select a format...</option>
-            <option value="wiki">Biography</option>
-            <option value="video">Video</option>
+            <option value="artist">Artist</option>
+            <option value="album">Album</option>
+            <option value="track">Track</option>
           </select>
           <button type="submit" class="btn btn-info btn-block">Search</button>
         </form>
   
-      </div>√
-  
-      <div class="col-12 col-md-9 p-3 text-light">
+      </div>
+    </section>
+
+    <!-- Container for search results -->
+    <section class="container">
+      <div class="">
         <h2>Showing results for <span id="result-text"></span></h2>
         <div id="result-content"></div>
       </div>
-    </div>
-
+    </section>
 
   <script src="./assets/js/script.js"></script>     
-
     
 </body>
 </html>
