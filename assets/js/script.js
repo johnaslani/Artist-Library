@@ -17,27 +17,6 @@ var searchResultsEl = document.querySelector('#search-results');
 // Generate the DOM elements for an artist card
 function generateArtistCard(artistContents) {
   var card = $("<div>")
-  card.addClass("card")
-
-  // Generate the header
-  var header = $("<header>")
-  header.addClass("card-header")
-  var headerTitle = $("<p>")
-  headerTitle.addClass("card-header-title")
-  headerTitle.text(artistContents.name)
-  header.append(headerTitle)
-  card.append(header)
-
-  // Card content
-  var cardContent = $("<div>")
-  cardContent.addClass("card-content")
-  var content = $("<div>")
-  content.addClass("content")
-  content.text(artistContents.bio)
-  cardContent.append(content)
-  card.append(cardContent)
-
-  console.log(card);
 
   return card
 }
@@ -144,9 +123,13 @@ function searchNapsterArtist(artistSearchInput) {
         saveEl.addClass("card-footer-item").text("Save")
         saveEl.attr("#")
         footerEl.append(saveEl)
-        
+      
+        // Albums
+
+
+        // Wiki page
         var moreInfoEl = $("<a>");
-        moreInfoEl.addClass("card-footer-item").text("More Info")
+        moreInfoEl.addClass("card-footer-item").text("Wiki")
         moreInfoEl.attr("href", "#")
         footerEl.append(moreInfoEl)
         card.append(footerEl)
@@ -227,17 +210,6 @@ function searchNapsterTrack(trackSearchInput) {
     })
     .then(function (responseData) {
       console.log(responseData);
-
-      // var data = responseData.search.data;
-      // var artistData = data.artists[0];
-      // var artistName = artistData.name;
-      // var artistId = artistData.id;
-
-      // // Album IDs
-      // var topAlbums = artistData.albumGroups.main.slice(0, 5);
-
-      // console.log("name: ", artistName);
-      // console.log("id: ", artistId);
 
     })
     .catch(function (error) {
