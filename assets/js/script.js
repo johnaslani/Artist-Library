@@ -42,6 +42,32 @@ function generateArtistCard(artistContents) {
   return card
 }
 
+function populateArtistImage(artistId, artistImageSearchUrl) {
+// Make another fetch to capture the Image link
+
+  console.log("Artist image search URL: ", artistImageSearchUrl);
+
+  fetch(artistImageSearchUrl)
+    .then(function (response) {
+      if (!response.ok) {
+        throw response.json();
+      }
+      return response.json();
+    })
+    .then(function (responseData) {
+      console.log(responseData);
+
+      var imageEl = document.querySelector("#" + artistId);
+      console.log("imageEl: ", imageEl);
+      $(imageEl).attr("src", responseData.images[0].url);
+      console.log("Image URL: ", responseData.images[0].url);
+
+    })
+    .catch(function (error) {
+      console.error(error);
+    });
+};
+
 // Artist Search
 function searchNapsterArtist(artistSearchInput) {
     
@@ -60,121 +86,89 @@ function searchNapsterArtist(artistSearchInput) {
       return response.json();
     })
     .then(function (responseData) {
-      console.log(responseData);
+      // console.log(responseData);
 
       var data = responseData.search.data;
-      var artistData = data.artists[0];
+      // var artistData = data.artists[0];
 
-      // var domCardContents = generateArtistCard(artistContents)
-      var card = $("<div>");
-      card.addClass("card");
+      var loopCounter = 0
+      for (var artistData of data.artists) {
+        loopCounter += 1
+        console.log("On loop: ", loopCounter);
+        console.log("Artist Data: ", artistData);
 
-      // Generate the header
-      var header = $("<header>");
-      header.addClass("card-header");
-      var headerTitle = $("<p>");
-      headerTitle.addClass("card-header-title");
-      headerTitle.text(artistData.name);
-      header.append(headerTitle);
-      card.append(header);
+        // var domCardContents = generateArtistCard(artistContents)
+        var card = $("<div>");
+        card.addClass("card");
 
-      // Generate the Image content (with a placeholder for the image)
-      var artistImageDivEl = $("<div>");
-      artistImageDivEl.addClass("card");
-      var imageDivEl = $("<div>");
-      imageDivEl.addClass("card-image")
-      var figureEl = $("<figure>")
-      figureEl.addClass("image")
-      var artistId = artistData.id
-      var imageEl = $("<img id='#" + artistId + "' alt='Artist Image'>")
-      figureEl.append(imageEl)
-      imageDivEl.append(figureEl)
-      artistImageDivEl.append(imageDivEl)
-      card.append(artistImageDivEl)
+        // Generate the header
+        var header = $("<header>");
+        header.addClass("card-header");
+        var headerTitle = $("<p>");
+        headerTitle.addClass("card-header-title");
+        headerTitle.text(artistData.name);
+        header.append(headerTitle);
+        card.append(header);
 
-      // Card content
-      var cardContent = $("<div>");
-      cardContent.addClass("card-content");
-      var content = $("<div>");
-      content.addClass("content");
-      content.text(artistData.bios[0].bio);
-      cardContent.append(content);
-      card.append(cardContent);
+        // Generate the Image content (with a placeholder for the image)
+        var artistImageDivEl = $("<div>");
+        artistImageDivEl.addClass("card");
+        var imageDivEl = $("<div>");
+        imageDivEl.addClass("card-image")
+        var figureEl = $("<figure>")
+        figureEl.addClass("image")
+        var artistId = artistData.id.replace(".", "-")
+        var imageEl = $("<img id='" + artistId + "' alt='Artist Image'>")
+        figureEl.append(imageEl)
+        imageDivEl.append(figureEl)
+        artistImageDivEl.append(imageDivEl)
+        card.append(artistImageDivEl)
 
-      // Footer
-      var footerEl = $("<footer>");
-      footerEl.addClass("card-footer");
-      var saveEl = $("<a>");
-      saveEl.addClass("card-footer-item").text("Save")
-      saveEl.attr("#")
-      footerEl.append(saveEl)
-      
-      var moreInfoEl = $("<a>");
-      moreInfoEl.addClass("card-footer-item").text("More Info")
-      moreInfoEl.attr("href", "#")
-      footerEl.append(moreInfoEl)
-      card.append(footerEl)
+        // Card content
+        var cardContent = $("<div>");
+        cardContent.addClass("card-content");
+        var content = $("<div>");
+        content.addClass("content");
+        var bioText = "(No artist bio available.)";
+        if (artistData.blurbs.length >= 1) {
+          bioText = artistData.blurbs[0];
+        }
+        content.text(bioText);
+        cardContent.append(content);
+        card.append(cardContent);
 
-      card.appendTo(searchResultsEl);
-      // searchResultsEl.append(card)
+        // Footer
+        var footerEl = $("<footer>");
+        footerEl.addClass("card-footer");
+        var saveEl = $("<a>");
+        saveEl.addClass("card-footer-item").text("Save")
+        saveEl.attr("#")
+        footerEl.append(saveEl)
+        
+        var moreInfoEl = $("<a>");
+        moreInfoEl.addClass("card-footer-item").text("More Info")
+        moreInfoEl.attr("href", "#")
+        footerEl.append(moreInfoEl)
+        card.append(footerEl)
 
-      
-      // Make another featch to capture the Image link
-      var artistImageSearchUrl = (
-        artistData.links.images.href
-        + '?apikey='
-        + NAPSTER_API_KEY
-      );
+        card.appendTo(searchResultsEl);
+        // searchResultsEl.append(card)
 
-      console.log("Artist image search URL: ", artistImageSearchUrl);
+        // Make another featch to capture the Image link
+        var artistImageSearchUrl = (
+          artistData.links.images.href
+          + '?apikey='
+          + NAPSTER_API_KEY
+        );
 
-      fetch(artistImageSearchUrl)
-        .then(function (response) {
-          if (!response.ok) {
-            throw response.json();
-          }
-          return response.json();
-        })
-        .then(function (responseData) {
-          console.log(responseData);
+        populateArtistImage(artistId, artistImageSearchUrl)
 
-          imageEl.attr("src", responseData.images[0].url)
-          console.log("Image URL: ", responseData.images[0].url);
-
-        })
-        .catch(function (error) {
-          console.error(error);
-        });
+      };
     })
     .catch(function (error) {
       console.error(error);
     });
 }
-
-  // Image Search
-function searchArtistImages(albumSearchInput) {
-    
-  var albumSearchUrl = (
-    "https://api.napster.com/v2.2/artists/art.15352652/images"
-    + '?apikey='
-    + NAPSTER_API_KEY
-  );
-
-  fetch(albumSearchUrl)
-    .then(function (response) {
-      if (!response.ok) {
-        throw response.json();
-      }
-      return response.json();
-    })
-    .then(function (responseData) {
-      console.log(responseData);
-
-    })
-    .catch(function (error) {
-      console.error(error);
-    });
-  }
 
 
 // Album Search
