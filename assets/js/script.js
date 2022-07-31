@@ -23,11 +23,77 @@ var searchResultsEl = $('#search-results');
 // Napster API Fetch Calls
 
 // Generate the DOM elements for an artist card
-function generateArtistCard(artistContents) {
-  var card = $("<div>")
+function generateArtistCard(artistId, artistData) {
+  // Docs for the Bulma card can be found here:
+  //  https://bulma.io/documentation/components/card/
 
-  return card
-}
+  var card = $("<div>");
+  card.addClass("card");
+
+  // Generate the header
+  var header = $("<header>");
+  header.addClass("card-header");
+  var headerTitle = $("<p>");
+  headerTitle.addClass("card-header-title");
+  headerTitle.text(artistData.name);
+  header.append(headerTitle);
+  card.append(header);
+
+  // Generate the Image content.
+  // The image URL requires a different API endpoint,
+  //  so the image `src` will be set by a different function.
+  var artistImageDivEl = $("<div>");
+  artistImageDivEl.addClass("card");
+  var imageDivEl = $("<div>");
+  imageDivEl.addClass("card-image");
+  var figureEl = $("<figure>");
+  figureEl.addClass("image");
+  var imageEl = $("<img>");
+  imageEl.attr("id", artistId + "-img");
+  imageEl.attr("alt", "Cover Image for " + artistData.name);
+  figureEl.append(imageEl);
+  imageDivEl.append(figureEl);
+  artistImageDivEl.append(imageDivEl);
+  card.append(artistImageDivEl);
+
+  // Card Content - the API response `artist.bios.bio` is not
+  //  consistently returned, so use the `artist.blurbs` array
+  //  to populate the card content.
+  var cardContent = $("<div>");
+  cardContent.addClass("card-content");
+  var content = $("<div>");
+  content.addClass("content");
+  var bioText = "(No artist bio available.)";
+  if (artistData.blurbs.length >= 1) {
+    bioText = artistData.blurbs[0];
+  };
+  content.text(bioText);
+  cardContent.append(content);
+  card.append(cardContent);
+
+  // Card Footer - buttons below the Card Content
+  var footerEl = $("<footer>");
+  footerEl.addClass("card-footer");
+  
+  // TODO: Do something with the save button (or remove?)
+  // Make a "save" button to save artist to something...
+  var saveEl = $("<a>");
+  saveEl.addClass("card-footer-item").text("Save");
+  saveEl.attr("#");
+  footerEl.append(saveEl);
+
+  // The Wiki link button will take the user to the artist page.
+  // The URL will be set asynchronously after the Wiki API fetch
+  //  response returns the URL for the artist.
+  var moreInfoEl = $("<a>");
+  moreInfoEl.addClass("card-footer-item").text("Wiki");
+  moreInfoEl.attr("href", "#");
+  moreInfoEl.attr("id", artistId + "-wiki");
+  footerEl.append(moreInfoEl);
+  card.append(footerEl);
+  
+  return card;
+};
 
 function setArtistImageUrl(artistId, artistImageSearchUrl) {
 // Make another fetch to capture the Image link
@@ -96,10 +162,8 @@ function searchNapsterArtist(artistSearchInput) {
       return response.json();
     })
     .then(function (responseData) {
-      // console.log(responseData);
 
       var data = responseData.search.data;
-      // var artistData = data.artists[0];
 
       var loopCounter = 0
       for (var artistData of data.artists) {
@@ -108,72 +172,14 @@ function searchNapsterArtist(artistSearchInput) {
         console.log("Artist Data: ", artistData);
 
         // The artist ID will be used for Element IDs such that
-        // asynchronous calls can reference the appropriate element
+        // the appropriate element can be populated asynchronously
         var artistId = artistData.id.replace(".", "-");
 
-        // var domCardContents = generateArtistCard(artistContents)
-        var card = $("<div>");
-        card.addClass("card");
+        // Generate the DOM contents for the card for the current artist response
+        var artistCardEl = generateArtistCard(artistId, artistData);
+        searchResultsEl.append(artistCardEl)
 
-        // Generate the header
-        var header = $("<header>");
-        header.addClass("card-header");
-        var headerTitle = $("<p>");
-        headerTitle.addClass("card-header-title");
-        headerTitle.text(artistData.name);
-        header.append(headerTitle);
-        card.append(header);
-
-        // Generate the Image content (with a placeholder for the image)
-        var artistImageDivEl = $("<div>");
-        artistImageDivEl.addClass("card");
-        var imageDivEl = $("<div>");
-        imageDivEl.addClass("card-image");
-        var figureEl = $("<figure>");
-        figureEl.addClass("image");
-        var imageEl = $("<img>");
-        imageEl.attr("id", artistId + "-img");
-        imageEl.attr("alt", "Cover Image for " + artistData.name)
-        figureEl.append(imageEl)
-        imageDivEl.append(figureEl)
-        artistImageDivEl.append(imageDivEl)
-        card.append(artistImageDivEl)
-
-        // Card content
-        var cardContent = $("<div>");
-        cardContent.addClass("card-content");
-        var content = $("<div>");
-        content.addClass("content");
-        var bioText = "(No artist bio available.)";
-        if (artistData.blurbs.length >= 1) {
-          bioText = artistData.blurbs[0];
-        }
-        content.text(bioText);
-        cardContent.append(content);
-        card.append(cardContent);
-
-        // Footer
-        var footerEl = $("<footer>");
-        footerEl.addClass("card-footer");
-        var saveEl = $("<a>");
-        saveEl.addClass("card-footer-item").text("Save")
-        saveEl.attr("#")
-        footerEl.append(saveEl)
-      
-        // Albums
-
-
-        // Wiki page
-        var moreInfoEl = $("<a>");
-        moreInfoEl.addClass("card-footer-item").text("Wiki")
-        moreInfoEl.attr("href", "#")
-        moreInfoEl.attr("id", artistId + "-wiki");
-        footerEl.append(moreInfoEl)
-        card.append(footerEl)
-
-        searchResultsEl.append(card)
-
-        // Make another featch to capture the Image link
+        // Make another Napster API fetch to populate the Image link
         var artistImageSearchUrl = (
           artistData.links.images.href
           + '?apikey='
@@ -181,7 +187,7 @@ function searchNapsterArtist(artistSearchInput) {
         );
         setArtistImageUrl(artistId, artistImageSearchUrl)
 
-        // Make another fetch call to set the Wiki URL
+        // Make a Wiki API fetch to set the Wiki URL in the card footer
         setArtistWikiUrl(artistId, artistData.name)
 
       };
