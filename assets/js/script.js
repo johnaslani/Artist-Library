@@ -1,15 +1,23 @@
 // Globals
-var NAPSTER_API_KEY = "ZTE3MmM4YTItMzY0Ni00OGM1LWE2NDUtMDc2ZDgyNGUwMGQz"
+const NAPSTER_API_KEY = "ZTE3MmM4YTItMzY0Ni00OGM1LWE2NDUtMDc2ZDgyNGUwMGQz"
 
+const WIKI_ENDPOINT_OPTIONS = {
+	method: 'GET',
+	headers: {
+		'X-RapidAPI-Key': 'a535281b61mshce35bc85549ab99p1420dcjsn610a2113d2c1',
+		'X-RapidAPI-Host': 'wiki-briefs.p.rapidapi.com'
+	}
+};
 
 // =============================================================================
 // DOM Objects
+// TODO: Convert these DOM objects to jquery
 var searchTerm = document.querySelector("#search-input");
 var resultTextEl = document.querySelector('#result-text');
 // var resultContentEl = document.querySelector('#result-content');
 var searchFormEl = document.querySelector('#search-form');
 var formatEl = document.querySelector('#format-input');
-var searchResultsEl = document.querySelector('#search-results');
+var searchResultsEl = $('#search-results');
 
 // =============================================================================
 // Napster API Fetch Calls
@@ -21,7 +29,7 @@ function generateArtistCard(artistContents) {
   return card
 }
 
-function populateArtistImage(artistId, artistImageSearchUrl) {
+function setArtistImageUrl(artistId, artistImageSearchUrl) {
 // Make another fetch to capture the Image link
 
   console.log("Artist image search URL: ", artistImageSearchUrl);
@@ -36,16 +44,39 @@ function populateArtistImage(artistId, artistImageSearchUrl) {
     .then(function (responseData) {
       console.log(responseData);
 
-      var imageEl = document.querySelector("#" + artistId);
+      var imageEl = $("#" + artistId + "-img");
       console.log("imageEl: ", imageEl);
-      $(imageEl).attr("src", responseData.images[0].url);
-      console.log("Image URL: ", responseData.images[0].url);
-
+      if (responseData.images.length > 0) {
+        imageEl.attr("src", responseData.images[0].url);
+        console.log("Image URL: ", responseData.images[0].url);
+      }
+      else {
+        imageEl.attr("alt", "(No image available)");
+      }
     })
     .catch(function (error) {
       console.error(error);
     });
 };
+
+
+// Use the Wiki briefs API to get the Wiki link
+function setArtistWikiUrl(artistId, searchInputVal) {
+   
+  searchInputVal =  searchInputVal.split(' ').join("%20");
+  var wikiSearchUrl = `https://wiki-briefs.p.rapidapi.com/search?q=${searchInputVal}`;
+
+  fetch(wikiSearchUrl, WIKI_ENDPOINT_OPTIONS)
+    .then((response) => response.json())
+    .then((response) => {
+        console.log("Wiki artist search: ", response);
+        
+        var artistWikiEl = $("#" + artistId + "-wiki");
+        artistWikiEl.attr("href", response.url);
+    })
+    .catch((err) => console.error(err));
+};
+
 
 // Artist Search
 function searchNapsterArtist(artistSearchInput) {
@@ -76,6 +107,10 @@ function searchNapsterArtist(artistSearchInput) {
         console.log("On loop: ", loopCounter);
         console.log("Artist Data: ", artistData);
 
+        // The artist ID will be used for Element IDs such that
+        // asynchronous calls can reference the appropriate element
+        var artistId = artistData.id.replace(".", "-");
+
         // var domCardContents = generateArtistCard(artistContents)
         var card = $("<div>");
         card.addClass("card");
@@ -93,11 +128,12 @@ function searchNapsterArtist(artistSearchInput) {
         var artistImageDivEl = $("<div>");
         artistImageDivEl.addClass("card");
         var imageDivEl = $("<div>");
-        imageDivEl.addClass("card-image")
-        var figureEl = $("<figure>")
-        figureEl.addClass("image")
-        var artistId = artistData.id.replace(".", "-")
-        var imageEl = $("<img id='" + artistId + "' alt='Artist Image'>")
+        imageDivEl.addClass("card-image");
+        var figureEl = $("<figure>");
+        figureEl.addClass("image");
+        var imageEl = $("<img>");
+        imageEl.attr("id", artistId + "-img");
+        imageEl.attr("alt", "Cover Image for " + artistData.name)
         figureEl.append(imageEl)
         imageDivEl.append(figureEl)
         artistImageDivEl.append(imageDivEl)
@@ -131,11 +167,11 @@ function searchNapsterArtist(artistSearchInput) {
         var moreInfoEl = $("<a>");
         moreInfoEl.addClass("card-footer-item").text("Wiki")
         moreInfoEl.attr("href", "#")
+        moreInfoEl.attr("id", artistId + "-wiki");
         footerEl.append(moreInfoEl)
         card.append(footerEl)
 
-        card.appendTo(searchResultsEl);
-        // searchResultsEl.append(card)
+        searchResultsEl.append(card)
 
         // Make another featch to capture the Image link
         var artistImageSearchUrl = (
@@ -143,8 +179,10 @@ function searchNapsterArtist(artistSearchInput) {
           + '?apikey='
           + NAPSTER_API_KEY
         );
+        setArtistImageUrl(artistId, artistImageSearchUrl)
 
-        populateArtistImage(artistId, artistImageSearchUrl)
+        // Make another fetch call to set the Wiki URL
+        setArtistWikiUrl(artistId, artistData.name)
 
       };
     })
@@ -231,27 +269,26 @@ const options = {
 	}
 };
 
-  var brokenSearch = searchInputVal.split(' ');
-  var newSearchInput =  brokenSearch.join("%20");
-  console.log(newSearchInput);
-
+  var newSearchInput =  searchInputVal.split(' ').join("%20");
 
   fetch(`https://wiki-briefs.p.rapidapi.com/search?q=${newSearchInput}`, options
   )
     .then((response) => response.json())
     .then((response) => {
         console.log(response);
-        var wiki = " ";
+        
+        // Loop over the blurb to join the strings into one response
+        var wiki = "";
         for (var i = 0; i < response.summary.length; i++) {
-                wiki += response.summary[i]
+                wiki += response.summary[i] + ' ';
         }
-        var textEl = document.createElement("a");
-        var linkEl = document.createElement("a")
-        linkEl.setAttribute("href", response.url);
-        linkEl.textContent = response.title;
-        textEl.textContent = wiki;
-        resultTextEl.append(linkEl); 
-        resultTextEl.append(textEl);
+        // var textEl = $("<a>");
+        // var linkEl = $("<a>")
+        // linkEl.attr("href", response.url);
+        // linkEl.text = response.title;
+        // textEl.text = wiki;
+        // resultTextEl.append(linkEl); 
+        // resultTextEl.append(textEl);
      
     })
     .catch((err) => console.error(err));
