@@ -1,3 +1,8 @@
+// TODO: Move all contents to jquery
+//  - DOM selection (query selector)
+//  - listening events
+//  - element creation
+
 // Globals
 const NAPSTER_API_KEY = "ZTE3MmM4YTItMzY0Ni00OGM1LWE2NDUtMDc2ZDgyNGUwMGQz"
 
@@ -18,9 +23,81 @@ var resultTextEl = document.querySelector('#result-text');
 var searchFormEl = document.querySelector('#search-form');
 var formatEl = document.querySelector('#format-input');
 var searchResultsEl = $('#search-results');
+var savedArtistsEl = $('#saved-artists');
 
 // =============================================================================
 // Napster API Fetch Calls
+
+// Save artist data to local storage using the event listener
+function saveArtistToLocalStorage(event) {
+
+}
+
+function removeArtistFromSearchHistory(event) {
+  var elementToRemove = $("#" + event.data.cardId)
+  elementToRemove.remove()
+}
+
+function showArtistSearch(event) {
+  searchNapsterArtist(event.data.name, 1);
+};
+
+function saveArtist(event) {
+  var artistId = event.data.artistId;
+  var artistData = event.data.artistData;
+  console.log("Artist save button has been clicked.");
+
+  // Make a new element/card
+  var card = $("<div>");
+  card.addClass("card");
+  var cardId = artistId + "-card-saved"
+  card.attr("id", cardId)
+
+  // Generate the header
+  var header = $("<header>");
+  header.addClass("card-header");
+  var headerTitle = $("<p>");
+  headerTitle.addClass("card-header-title");
+  headerTitle.text(artistData.name);
+  header.append(headerTitle);
+  card.append(header);
+
+  // Card Footer - buttons below the Card Content
+  var footerEl = $("<footer>");
+  footerEl.addClass("card-footer");
+  
+  // Make a "remove" button to remove the artist from the search history
+  var removeEl = $("<a>");
+  removeEl.addClass("card-footer-item").text("Remove");
+  removeEl.attr("#");
+  // Event listener to move to saved searches
+  removeEl.on("click", {cardId: cardId}, removeArtistFromSearchHistory)
+  // removeEl.on("click", removeArtistFromSearchHistory)
+  footerEl.append(removeEl)
+
+  // Show results for this artist
+  var showEl = $("<a>");
+  showEl.addClass("card-footer-item").text("Show Artist");
+  showEl.attr("#");
+  // Event listener to move to saved searches
+  showEl.on("click", {name: artistData.name}, showArtistSearch)
+  
+  footerEl.append(showEl)
+  card.append(footerEl)
+
+  // Append to list
+  savedArtistsEl.append(card)
+
+
+  // TODO: Add to local storage
+
+  // TODO: remove an item
+
+  // TODO: use storage contents to rerun search?
+
+  // TODO: Hide search results???
+
+}
 
 // Generate the DOM elements for an artist card
 function generateArtistCard(artistId, artistData) {
@@ -29,6 +106,7 @@ function generateArtistCard(artistId, artistData) {
 
   var card = $("<div>");
   card.addClass("card");
+  card.addClass(artistId + "-card")
 
   // Generate the header
   var header = $("<header>");
@@ -80,6 +158,17 @@ function generateArtistCard(artistId, artistData) {
   var saveEl = $("<a>");
   saveEl.addClass("card-footer-item").text("Save");
   saveEl.attr("#");
+  // Event listener to move to saved searches
+  var artistEventData = {artistId: artistId, artistData: artistData}
+  saveEl.on("click", artistEventData, saveArtist)
+
+  // var artistMetadata = {
+  //   id: artistId,
+  //   napsterEndpoint: artistData.href,
+  //   name: artistData.name,
+  // };
+  // saveEl.data(artistMetadata);
+
   footerEl.append(saveEl);
 
   // The Wiki link button will take the user to the artist page.
@@ -145,13 +234,17 @@ function setArtistWikiUrl(artistId, searchInputVal) {
 
 
 // Artist Search
-function searchNapsterArtist(artistSearchInput) {
+function searchNapsterArtist(artistSearchInput, numberOfResponses) {
+
+  // First, clear out any existing contents for the container
+  searchResultsEl.empty();
     
   var artistSearchUrl = (
     'https://api.napster.com/v2.2/search?query='
     + artistSearchInput.split(' ').join('%20')
-    + '&type=artist&per_type_limit=3&apikey='
-    + NAPSTER_API_KEY
+    + '&type=artist'
+    + '&per_type_limit=' + structuredClone(numberOfResponses)
+    + '&apikey=' + NAPSTER_API_KEY
   );
 
   fetch(artistSearchUrl)
@@ -218,22 +311,11 @@ function searchNapsterAlbum(albumSearchInput) {
     .then(function (responseData) {
       console.log(responseData);
 
-      // var data = responseData.search.data;
-      // var artistData = data.artists[0];
-      // var artistName = artistData.name;
-      // var artistId = artistData.id;
-
-      // // Album IDs
-      // var topAlbums = artistData.albumGroups.main.slice(0, 5);
-
-      // console.log("name: ", artistName);
-      // console.log("id: ", artistId);
-
     })
     .catch(function (error) {
       console.error(error);
     });
-  }
+}
 
 // Track Seach
 function searchNapsterTrack(trackSearchInput) {
@@ -318,7 +400,7 @@ function handleSearchFormSubmit(event) {
     return;
   }
   if (formatInputVal === "artist") {
-      searchNapsterArtist(searchInputVal);
+      searchNapsterArtist(searchInputVal, 3);
       console.log("Calling Napster API for artist search: ", formatInputVal)
   }
   if (formatInputVal === "album") {
