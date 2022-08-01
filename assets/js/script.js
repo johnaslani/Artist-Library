@@ -28,30 +28,22 @@ var savedArtistsEl = $('#saved-artists');
 // =============================================================================
 // Napster API Fetch Calls
 
-// Save artist data to local storage using the event listener
-function saveArtistToLocalStorage(event) {
-
-}
-
 function removeArtistFromSearchHistory(event) {
-  var elementToRemove = $("#" + event.data.cardId)
-  elementToRemove.remove()
+  var elementToRemove = $("#" + event.data.cardId);
+  elementToRemove.remove();
 }
 
 function showArtistSearch(event) {
   searchNapsterArtist(event.data.name, 1);
 };
 
-function saveArtist(event) {
-  var artistId = event.data.artistId;
-  var artistData = event.data.artistData;
-  console.log("Artist save button has been clicked.");
+function saveArtist(artistId, artistData) {
 
   // Make a new element/card
   var card = $("<div>");
   card.addClass("card");
-  var cardId = artistId + "-card-saved"
-  card.attr("id", cardId)
+  var cardId = artistId + "-card-saved";
+  card.attr("id", cardId);
 
   // Generate the header
   var header = $("<header>");
@@ -71,33 +63,41 @@ function saveArtist(event) {
   removeEl.addClass("card-footer-item").text("Remove");
   removeEl.attr("#");
   // Event listener to move to saved searches
-  removeEl.on("click", {cardId: cardId}, removeArtistFromSearchHistory)
-  // removeEl.on("click", removeArtistFromSearchHistory)
-  footerEl.append(removeEl)
+  removeEl.on("click", {cardId: cardId}, removeArtistFromSearchHistory);
+  footerEl.append(removeEl);
 
   // Show results for this artist
   var showEl = $("<a>");
   showEl.addClass("card-footer-item").text("Show Artist");
   showEl.attr("#");
   // Event listener to move to saved searches
-  showEl.on("click", {name: artistData.name}, showArtistSearch)
+  showEl.on("click", {name: artistData.name}, showArtistSearch);
   
-  footerEl.append(showEl)
-  card.append(footerEl)
+  footerEl.append(showEl);
+  card.append(footerEl);
 
   // Append to list
-  savedArtistsEl.append(card)
+  savedArtistsEl.append(card);
 
+  // Save to local storage if the artist ID hasn't already been saved
+  var savedArtists = Object.keys(localStorage);  // returns array of keys
+  var artistIsAlreadySaved = (savedArtists.indexOf("artistId") > -1);  // returns bool
+  if (!artistIsAlreadySaved) {
+    localStorage.setItem(artistId, JSON.stringify(artistData));
+  };
 
-  // TODO: Add to local storage
-
-  // TODO: remove an item
-
-  // TODO: use storage contents to rerun search?
-
-  // TODO: Hide search results???
+  // TODO: remove an item from local storage
 
 }
+
+
+function saveArtistOnClick(event) {
+  console.log("Artist save button has been clicked.");
+  var artistId = event.data.artistId;
+  var artistData = event.data.artistData;
+  saveArtist(artistId, artistData);
+}
+
 
 // Generate the DOM elements for an artist card
 function generateArtistCard(artistId, artistData) {
@@ -153,21 +153,15 @@ function generateArtistCard(artistId, artistData) {
   var footerEl = $("<footer>");
   footerEl.addClass("card-footer");
   
-  // TODO: Do something with the save button (or remove?)
-  // Make a "save" button to save artist to something...
+  // The save button adds the artist to the "Saved Artists" list,
+  // and adds the artist contents to local storage for later
+  // retrieval when the page is refreshed
   var saveEl = $("<a>");
   saveEl.addClass("card-footer-item").text("Save");
   saveEl.attr("#");
   // Event listener to move to saved searches
   var artistEventData = {artistId: artistId, artistData: artistData}
-  saveEl.on("click", artistEventData, saveArtist)
-
-  // var artistMetadata = {
-  //   id: artistId,
-  //   napsterEndpoint: artistData.href,
-  //   name: artistData.name,
-  // };
-  // saveEl.data(artistMetadata);
+  saveEl.on("click", artistEventData, saveArtistOnClick)
 
   footerEl.append(saveEl);
 
@@ -291,6 +285,7 @@ function searchNapsterArtist(artistSearchInput, numberOfResponses) {
 }
 
 
+  // Currently not used/working!
 // Album Search
 function searchNapsterAlbum(albumSearchInput) {
     
@@ -317,6 +312,8 @@ function searchNapsterAlbum(albumSearchInput) {
     });
 }
 
+
+// Currently not used/working!
 // Track Seach
 function searchNapsterTrack(trackSearchInput) {
     
@@ -349,27 +346,19 @@ console.log(searchTerm);
 
 function searchWiki(searchInputVal) {
    
-const options = {
-	method: 'GET',
-	headers: {
-		'X-RapidAPI-Key': 'a535281b61mshce35bc85549ab99p1420dcjsn610a2113d2c1',
-		'X-RapidAPI-Host': 'wiki-briefs.p.rapidapi.com'
-	}
-};
+  searchInputVal =  searchInputVal.split(' ').join("%20");
 
-  var newSearchInput =  searchInputVal.split(' ').join("%20");
-
-  fetch(`https://wiki-briefs.p.rapidapi.com/search?q=${newSearchInput}`, options
+  fetch(`https://wiki-briefs.p.rapidapi.com/search?q=${searchInputVal}`, WIKI_ENDPOINT_OPTIONS
   )
     .then((response) => response.json())
     .then((response) => {
         console.log(response);
         
-        // Loop over the blurb to join the strings into one response
-        var wiki = "";
-        for (var i = 0; i < response.summary.length; i++) {
-                wiki += response.summary[i] + ' ';
-        }
+        // // Loop over the blurb to join the strings into one response
+        // var wiki = "";
+        // for (var i = 0; i < response.summary.length; i++) {
+        //         wiki += response.summary[i] + ' ';
+        // }
         // var textEl = $("<a>");
         // var linkEl = $("<a>")
         // linkEl.attr("href", response.url);
@@ -403,11 +392,13 @@ function handleSearchFormSubmit(event) {
       searchNapsterArtist(searchInputVal, 3);
       console.log("Calling Napster API for artist search: ", formatInputVal)
   }
-  if (formatInputVal === "album") {
+  // Currently not used/working!
+  else if (formatInputVal === "album") {
       searchNapsterAlbum(searchInputVal);
       console.log("Calling Napster API for album search: ", formatInputVal)
   }
-  if (formatInputVal === "track") {
+  // Currently not used/working!
+  else if (formatInputVal === "track") {
       searchNapsterTrack(searchInputVal);
       console.log("Calling Napster API for track search: ", formatInputVal)
   }
@@ -419,3 +410,28 @@ searchFormEl.addEventListener('submit', handleSearchFormSubmit);
 
 // TODO: Add another search input field after the Napster call is returned
 //    ... or maybe add another search box on the napster return?
+
+
+// Initialize the page using local storage.
+function init() {
+  console.log("Local storage getting called.");
+  // Get stored todos from localStorage
+  var savedArtists = JSON.parse(localStorage.getItem("savedArtists"));
+
+  // Used local storage to pre-populate the saved fields
+  // The keys are saved as the "artist-id", which is not known at runtime,
+  // so loop over all local storage keys and retrieve the associated value.
+  var localKeys = Object.keys(localStorage);
+  var localData = {};
+  
+  for (var artistId of localKeys) {
+    // localData[artistId] = localStorage.getItem(key);
+    var artistData = localStorage.getItem(artistId);
+    saveArtist(artistId, artistData)
+    console.log("Artist ID found in local storage: ", artistId);
+    console.log(artistData)
+  };
+}
+
+// Initialize the page to retrive the local storage data for the saved searches
+init()
