@@ -31,13 +31,27 @@ var savedArtistsEl = $('#saved-artists');
 function removeArtistFromSearchHistory(event) {
   var elementToRemove = $("#" + event.data.cardId);
   elementToRemove.remove();
+  // TODO: remove an item from local storage
+
 }
 
 function showArtistSearch(event) {
   searchNapsterArtist(event.data.name, 1);
 };
 
-function saveArtist(artistId, artistData) {
+function saveArtistToLocalStorage(artistId, artistData) {
+  // Save to local storage if the artist ID hasn't already been saved
+  var savedArtists = Object.keys(localStorage);  // returns array of keys
+
+  // var artistIsAlreadySaved = (savedArtists.indexOf("artistId") > -1);  // returns bool
+  var artistIsAlreadySaved = savedArtists.includes(artistId);  // returns bool
+  if (!artistIsAlreadySaved) {
+    localStorage.setItem(artistId, JSON.stringify(artistData));
+  };
+
+}
+
+function addArtistToSavedList(artistId, artistData) {
 
   // Make a new element/card
   var card = $("<div>");
@@ -50,6 +64,7 @@ function saveArtist(artistId, artistData) {
   header.addClass("card-header");
   var headerTitle = $("<p>");
   headerTitle.addClass("card-header-title");
+  console.log("Artist name, logged from listApend: ", artistData.name);
   headerTitle.text(artistData.name);
   header.append(headerTitle);
   card.append(header);
@@ -79,15 +94,6 @@ function saveArtist(artistId, artistData) {
   // Append to list
   savedArtistsEl.append(card);
 
-  // Save to local storage if the artist ID hasn't already been saved
-  var savedArtists = Object.keys(localStorage);  // returns array of keys
-  var artistIsAlreadySaved = (savedArtists.indexOf("artistId") > -1);  // returns bool
-  if (!artistIsAlreadySaved) {
-    localStorage.setItem(artistId, JSON.stringify(artistData));
-  };
-
-  // TODO: remove an item from local storage
-
 }
 
 
@@ -95,7 +101,8 @@ function saveArtistOnClick(event) {
   console.log("Artist save button has been clicked.");
   var artistId = event.data.artistId;
   var artistData = event.data.artistData;
-  saveArtist(artistId, artistData);
+  addArtistToSavedList(artistId, artistData);
+  saveArtistToLocalStorage(artistId, artistData);
 }
 
 
@@ -415,21 +422,15 @@ searchFormEl.addEventListener('submit', handleSearchFormSubmit);
 // Initialize the page using local storage.
 function init() {
   console.log("Local storage getting called.");
-  // Get stored todos from localStorage
-  var savedArtists = JSON.parse(localStorage.getItem("savedArtists"));
 
   // Used local storage to pre-populate the saved fields
   // The keys are saved as the "artist-id", which is not known at runtime,
   // so loop over all local storage keys and retrieve the associated value.
   var localKeys = Object.keys(localStorage);
-  var localData = {};
   
   for (var artistId of localKeys) {
-    // localData[artistId] = localStorage.getItem(key);
-    var artistData = localStorage.getItem(artistId);
-    saveArtist(artistId, artistData)
-    console.log("Artist ID found in local storage: ", artistId);
-    console.log(artistData)
+    var artistData = JSON.parse(localStorage.getItem(artistId));
+    addArtistToSavedList(artistId, artistData)
   };
 }
 
