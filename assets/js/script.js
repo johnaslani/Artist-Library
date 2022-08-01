@@ -25,19 +25,42 @@ var formatEl = document.querySelector('#format-input');
 var searchResultsEl = $('#search-results');
 var savedArtistsEl = $('#saved-artists');
 
+
+// =============================================================================
+// Use the Wiki briefs API to get the Wiki link to the artist
+function setArtistWikiUrl(artistId, searchInputVal) {
+   
+  searchInputVal =  searchInputVal.split(' ').join("%20");
+  var wikiSearchUrl = `https://wiki-briefs.p.rapidapi.com/search?q=${searchInputVal}`;
+
+  fetch(wikiSearchUrl, WIKI_ENDPOINT_OPTIONS)
+    .then((response) => response.json())
+    .then((response) => {
+        console.log("Wiki artist search: ", response);
+        
+        var artistWikiEl = $("#" + artistId + "-wiki");
+        artistWikiEl.attr("href", response.url);
+    })
+    .catch((err) => console.error(err));
+};
+
 // =============================================================================
 // Napster API Fetch Calls
 
 function removeArtistFromSearchHistory(event) {
+  // Remove the element from the DOM
   var elementToRemove = $("#" + event.data.cardId);
   elementToRemove.remove();
-  // TODO: remove an item from local storage
-
+  
+  // Remove the artist from local storage
+  localStorage.removeItem(event.data.artistId)
 }
+
 
 function showArtistSearch(event) {
   searchNapsterArtist(event.data.name, 1);
 };
+
 
 function saveArtistToLocalStorage(artistId, artistData) {
   // Save to local storage if the artist ID hasn't already been saved
@@ -78,7 +101,7 @@ function addArtistToSavedList(artistId, artistData) {
   removeEl.addClass("card-footer-item").text("Remove");
   removeEl.attr("#");
   // Event listener to move to saved searches
-  removeEl.on("click", {cardId: cardId}, removeArtistFromSearchHistory);
+  removeEl.on("click", {cardId: cardId, artistId: artistId}, removeArtistFromSearchHistory);
   footerEl.append(removeEl);
 
   // Show results for this artist
@@ -97,6 +120,9 @@ function addArtistToSavedList(artistId, artistData) {
 }
 
 
+// When the event listener on the artist "save" element is clicked,
+//  add the artist name to a field that can be refreshed from
+//  local storage.
 function saveArtistOnClick(event) {
   console.log("Artist save button has been clicked.");
   var artistId = event.data.artistId;
@@ -185,6 +211,7 @@ function generateArtistCard(artistId, artistData) {
   return card;
 };
 
+
 function setArtistImageUrl(artistId, artistImageSearchUrl) {
 // Make another fetch to capture the Image link
 
@@ -213,24 +240,6 @@ function setArtistImageUrl(artistId, artistImageSearchUrl) {
     .catch(function (error) {
       console.error(error);
     });
-};
-
-
-// Use the Wiki briefs API to get the Wiki link
-function setArtistWikiUrl(artistId, searchInputVal) {
-   
-  searchInputVal =  searchInputVal.split(' ').join("%20");
-  var wikiSearchUrl = `https://wiki-briefs.p.rapidapi.com/search?q=${searchInputVal}`;
-
-  fetch(wikiSearchUrl, WIKI_ENDPOINT_OPTIONS)
-    .then((response) => response.json())
-    .then((response) => {
-        console.log("Wiki artist search: ", response);
-        
-        var artistWikiEl = $("#" + artistId + "-wiki");
-        artistWikiEl.attr("href", response.url);
-    })
-    .catch((err) => console.error(err));
 };
 
 
