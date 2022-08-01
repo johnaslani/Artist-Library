@@ -21,15 +21,17 @@ var searchTerm = document.querySelector("#search-input");
 var resultTextEl = document.querySelector('#result-text');
 // var resultContentEl = document.querySelector('#result-content');
 var searchFormEl = document.querySelector('#search-form');
-var formatEl = document.querySelector('#format-input');
+// var formatEl = document.querySelector('#format-input');
 var searchResultsEl = $('#search-results');
 var savedArtistsEl = $('#saved-artists');
 
 
 // =============================================================================
-// Use the Wiki briefs API to get the Wiki link to the artist
+// Use the Wiki briefs API to get the Wiki link to the artist.
+// Modify the artist card footer Wiki tag to use the href from the Wiki API.
 function setArtistWikiUrl(artistId, searchInputVal) {
    
+  // Replace any empty string characters prior to making the API call
   searchInputVal =  searchInputVal.split(' ').join("%20");
   var wikiSearchUrl = `https://wiki-briefs.p.rapidapi.com/search?q=${searchInputVal}`;
 
@@ -38,6 +40,8 @@ function setArtistWikiUrl(artistId, searchInputVal) {
     .then((response) => {
         console.log("Wiki artist search: ", response);
         
+        // The artist card footer has an ID of `#<artist.id>-wiki`.
+        // Grab that element and assign the `href` with the URL from the Wiki
         var artistWikiEl = $("#" + artistId + "-wiki");
         artistWikiEl.attr("href", response.url);
     })
@@ -47,26 +51,42 @@ function setArtistWikiUrl(artistId, searchInputVal) {
 // =============================================================================
 // Napster API Fetch Calls
 
+// Based on an event, remove the artist from the "Saved Artists" HTML
+//  container, as well as from local storage.
 function removeArtistFromSearchHistory(event) {
-  // Remove the element from the DOM
+  // The `event` must have been passed with data used to
+  // retrieve the appropriate element based on ID.
   var elementToRemove = $("#" + event.data.cardId);
+
+  // Remove the element from the DOM
   elementToRemove.remove();
   
-  // Remove the artist from local storage
+  // Remove the artist from local storage. Again, we need data passed in
+  // with the event.
   localStorage.removeItem(event.data.artistId)
 }
 
 
+// TODO: investigate using the stored data to make a new card instead
+//  of calling the Napster API again. (see function below)
+
+// Populate the artist search results container by making another call to
+//  the Napster API. Only return the first search result.
+// Ideally we wouldn't be making another API search call, but to avoid
+//  duplicating large amounts of code, we'll make another search call
+//  using the values stashed in local storage.
 function showArtistSearch(event) {
   searchNapsterArtist(event.data.name, 1);
 };
 
 
+// Based on the provided artist information, save the contents to
+//  local storage if the artist ID is not already stored.
 function saveArtistToLocalStorage(artistId, artistData) {
   // Save to local storage if the artist ID hasn't already been saved
   var savedArtists = Object.keys(localStorage);  // returns array of keys
 
-  // var artistIsAlreadySaved = (savedArtists.indexOf("artistId") > -1);  // returns bool
+  // Ensure the artist isn't already in storage.
   var artistIsAlreadySaved = savedArtists.includes(artistId);  // returns bool
   if (!artistIsAlreadySaved) {
     localStorage.setItem(artistId, JSON.stringify(artistData));
@@ -74,9 +94,12 @@ function saveArtistToLocalStorage(artistId, artistData) {
 
 }
 
+
+// Create a new Bulma Card that contains different footer information
+//  than the original artist Card that is being saved.
 function addArtistToSavedList(artistId, artistData) {
 
-  // Make a new element/card
+  // Make a new element/card for the saved artist data
   var card = $("<div>");
   card.addClass("card");
   var cardId = artistId + "-card-saved";
@@ -87,12 +110,11 @@ function addArtistToSavedList(artistId, artistData) {
   header.addClass("card-header");
   var headerTitle = $("<p>");
   headerTitle.addClass("card-header-title");
-  console.log("Artist name, logged from listApend: ", artistData.name);
   headerTitle.text(artistData.name);
   header.append(headerTitle);
   card.append(header);
 
-  // Card Footer - buttons below the Card Content
+  // Generate the Card Footer - buttons below the header (no content)
   var footerEl = $("<footer>");
   footerEl.addClass("card-footer");
   
@@ -100,21 +122,20 @@ function addArtistToSavedList(artistId, artistData) {
   var removeEl = $("<a>");
   removeEl.addClass("card-footer-item").text("Remove");
   removeEl.attr("#");
-  // Event listener to move to saved searches
+  // Add event listener to remove from saved searches
   removeEl.on("click", {cardId: cardId, artistId: artistId}, removeArtistFromSearchHistory);
   footerEl.append(removeEl);
 
-  // Show results for this artist
+  // Show results for this artist by creating a new card in the search results conatainer
   var showEl = $("<a>");
   showEl.addClass("card-footer-item").text("Show Artist");
   showEl.attr("#");
-  // Event listener to move to saved searches
   showEl.on("click", {name: artistData.name}, showArtistSearch);
   
   footerEl.append(showEl);
   card.append(footerEl);
 
-  // Append to list
+  // Append to the saved artist container
   savedArtistsEl.append(card);
 
 }
@@ -124,7 +145,7 @@ function addArtistToSavedList(artistId, artistData) {
 //  add the artist name to a field that can be refreshed from
 //  local storage.
 function saveArtistOnClick(event) {
-  console.log("Artist save button has been clicked.");
+  // Function requires for the event object to contain the artist data
   var artistId = event.data.artistId;
   var artistData = event.data.artistData;
   addArtistToSavedList(artistId, artistData);
@@ -212,10 +233,9 @@ function generateArtistCard(artistId, artistData) {
 };
 
 
+// Make another fetch to capture the Image link and assign it to the
+// appropriate HTML element for the associated artist
 function setArtistImageUrl(artistId, artistImageSearchUrl) {
-// Make another fetch to capture the Image link
-
-  console.log("Artist image search URL: ", artistImageSearchUrl);
 
   fetch(artistImageSearchUrl)
     .then(function (response) {
@@ -225,15 +245,14 @@ function setArtistImageUrl(artistId, artistImageSearchUrl) {
       return response.json();
     })
     .then(function (responseData) {
-      console.log(responseData);
 
+      // Make a new Element ID that has form `#<artist.id>-img`
       var imageEl = $("#" + artistId + "-img");
-      console.log("imageEl: ", imageEl);
       if (responseData.images.length > 0) {
         imageEl.attr("src", responseData.images[0].url);
-        console.log("Image URL: ", responseData.images[0].url);
       }
       else {
+        // Not all artists have available image data from Napster
         imageEl.attr("alt", "(No image available)");
       }
     })
@@ -243,7 +262,13 @@ function setArtistImageUrl(artistId, artistImageSearchUrl) {
 };
 
 
-// Artist Search
+// Use the Artist Search endpoint from Napster to search for the provided
+//  artist name.
+// The `numberOfResponse` argument can be used to limit the number
+//  of artistst returned from the endpoint.
+// More data on the Napster API can be found here:
+//  - https://developer.prod.napster.com/api/v2.2#artists
+//  - https://developer.prod.napster.com/api/v2.2#Artist-object
 function searchNapsterArtist(artistSearchInput, numberOfResponses) {
 
   // First, clear out any existing contents for the container
@@ -268,8 +293,13 @@ function searchNapsterArtist(artistSearchInput, numberOfResponses) {
 
       var data = responseData.search.data;
 
+      // Generate new cards for each artist in the response.
+      // To limit the number of artists, provide a different value for
+      //  the `numberOfResponses` argument to this function.
       var loopCounter = 0
       for (var artistData of data.artists) {
+        // Add a counter for debugging purposes.
+        // TODO: delete this prior to submitting the assignment
         loopCounter += 1
         console.log("On loop: ", loopCounter);
         console.log("Artist Data: ", artistData);
@@ -354,39 +384,7 @@ function searchNapsterTrack(trackSearchInput) {
     .catch(function (error) {
       console.error(error);
     });
-  }
-  
-// =============================================================================
-// Wikipedia (Wiki Briefs) API Fetch Calls
-console.log(searchTerm);
-
-function searchWiki(searchInputVal) {
-   
-  searchInputVal =  searchInputVal.split(' ').join("%20");
-
-  fetch(`https://wiki-briefs.p.rapidapi.com/search?q=${searchInputVal}`, WIKI_ENDPOINT_OPTIONS
-  )
-    .then((response) => response.json())
-    .then((response) => {
-        console.log(response);
-        
-        // // Loop over the blurb to join the strings into one response
-        // var wiki = "";
-        // for (var i = 0; i < response.summary.length; i++) {
-        //         wiki += response.summary[i] + ' ';
-        // }
-        // var textEl = $("<a>");
-        // var linkEl = $("<a>")
-        // linkEl.attr("href", response.url);
-        // linkEl.text = response.title;
-        // textEl.text = wiki;
-        // resultTextEl.append(linkEl); 
-        // resultTextEl.append(textEl);
-     
-    })
-    .catch((err) => console.error(err));
 }
-// add the Video Api -
 
 
 // =============================================================================
@@ -395,40 +393,31 @@ function handleSearchFormSubmit(event) {
   event.preventDefault();
 
   var searchInputVal = searchTerm.value;
-  var formatInputVal = formatEl.value;
-
   console.log(searchInputVal);
-  console.log(formatInputVal);
+  // var formatInputVal = formatEl.value;
+  // console.log(formatInputVal);
 
   if (!searchInputVal) {
     console.error('You need a search input value!');
     return;
   }
-  if (formatInputVal === "artist") {
-      searchNapsterArtist(searchInputVal, 3);
-      console.log("Calling Napster API for artist search: ", formatInputVal)
-  }
-  // Currently not used/working!
-  else if (formatInputVal === "album") {
-      searchNapsterAlbum(searchInputVal);
-      console.log("Calling Napster API for album search: ", formatInputVal)
-  }
-  // Currently not used/working!
-  else if (formatInputVal === "track") {
-      searchNapsterTrack(searchInputVal);
-      console.log("Calling Napster API for track search: ", formatInputVal)
-  }
+  searchNapsterArtist(searchInputVal, 3);
+  
+  // // Currently not used/working!
+  // else if (formatInputVal === "album") {
+  //     searchNapsterAlbum(searchInputVal);
+  //     console.log("Calling Napster API for album search: ", formatInputVal)
+  // }
+  // // Currently not used/working!
+  // else if (formatInputVal === "track") {
+  //     searchNapsterTrack(searchInputVal);
+  //     console.log("Calling Napster API for track search: ", formatInputVal)
+  // }
 
 }
   
 
-searchFormEl.addEventListener('submit', handleSearchFormSubmit);
-
-// TODO: Add another search input field after the Napster call is returned
-//    ... or maybe add another search box on the napster return?
-
-
-// Initialize the page using local storage.
+// Initialize the page using artist information from local storage.
 function init() {
   console.log("Local storage getting called.");
 
@@ -443,5 +432,10 @@ function init() {
   };
 }
 
-// Initialize the page to retrive the local storage data for the saved searches
+
+// Event listener for the artist search form that initializes the search
+searchFormEl.addEventListener('submit', handleSearchFormSubmit);
+
+
+// Initialize the page to retrieve the local storage data for the saved searches
 init()

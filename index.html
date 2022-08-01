@@ -1,69 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Group Project 1 (TODO - Update title with finalized project)</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.4/css/bulma.min.css">
-    <link rel="stylesheet" href="./assets/css/style.css" />
-    <!-- <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"/> -->
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Group Project 1 (TODO - Update title with finalized project)</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.4/css/bulma.min.css">
+	<link rel="stylesheet" href="./assets/css/style.css" />
 </head>
 <body>
 
-    <section class="">
-      <div class="">
-        <h1 class="text-primary">Artists Search</h1>
-        <form id="search-form" class="mb-2">
-          <input id="search-input" class="" type="text" placeholder="Search!">
-          <select id="format-input" class="">
-            <option value="" disabled selected>Select a format...</option>
-            <option value="artist">Artist</option>
-            <option value="album">Album</option>
-            <option value="track">Track</option>
-          </select>
-          <button type="submit" class="btn btn-info btn-block">Search</button>
-        </form>
-  
-      </div>
-    </section>
+	<!-- This section contains the search input form for the artist name -->
+	<section class="">
+		<div class="">
+			<h1 class="text-primary">Artists Search</h1>
+			<form id="search-form" class="mb-2">
+				<input id="search-input" class="" type="text" placeholder="Search!">
+				<!-- <select id="format-input" class="">
+					<option value="" disabled selected>Select a format...</option>
+					<option value="artist">Artist</option>
+					<option value="album">Album</option>
+					<option value="track">Track</option>
+				</select> -->
+				<button type="submit" class="btn btn-info btn-block">Search</button>
+			</form>
+		</div>
+	</section>
 
-    <!-- Container for search results -->
-    <!-- Taken from example: https://codepen.io/karanrajpal14/pen/eKzbaw -->
-    <section class="section">
-      <div class="container" id="search-results">
-      <!-- Artist Cards will be appended to this container using JavaScript -->
+	<!-- Container for search results from the Napster API call -->
+	<!-- Taken from example: https://codepen.io/karanrajpal14/pen/eKzbaw -->
+	<section class="section">
+		<div class="container" id="search-results">
+		<!-- Artist Cards will be appended to this container using JavaScript -->
 
-      <!-- TODO: When the "Save" option in the card is selected, save
-           those results to local storage -->
+		<!-- TODO: Determine if we want to include album/song search results,
+					or if we want to only include those as additional info parameters -->
 
-      <!-- TODO: Determine if we want to include album/song search results,
-           or if we want to only include those as additional info parameters -->
+		<!-- TODO: Make a hidden HTML Element that shows "More Info" when
+					the artist is selected. Alternatively, make a new page that
+					we switch to (like the example from class with two .html and
+					two .js files.) -->
 
-      <!-- TODO: On new search, clear the local results -->
+		<!-- TODO: In the "More Info" section, provide Wiki API results,
+					song results, and album results -->
+		
+		</div>
+	</section>
 
-      <!-- TODO: Make a hidden HTML Element that shows "More Info" when
-           the artist is selected. Alternatively, make a new page that
-           we switch to (like the example from class with two .html and
-           two .js files.) -->
+	<!-- Should the user choose, save the search information to a list, as
+			 well as local storage. Append the saved artists to this container. -->
+	<section class="section">
+		<h1>Saved Artists</h1>
+		<div class="container" id="saved-artists">
+			<!-- Saved artist cards will be appended to this container using JavaScript -->
 
-      <!-- TODO: In the "More Info" section, provide Wiki API results,
-           song results, and album results -->
-      
-      </div>
-    </section>
+			<!-- TODO: Can we make the appended elements styled as a vertical list
+					 or column instead of a row? -->
+		
+		</div>
+	</section>
 
-    <section class="section">
-      <h2>Saved Artists</h2>
-      <div class="container" id="saved-artists">
-        <!-- Saved artist cards will be appended to this container using JavaScript -->
-      </div>
-    </section>
-
-    <!-- TODO: Option for clearing local storage -->
-
-    
-  
   <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
   <script src="./assets/js/script.js"></script>     
