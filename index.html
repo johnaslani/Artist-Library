@@ -1,38 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Group Project 1 (TODO - Update title with finalized project)</title>
-    <link rel="stylesheet" href="./assets/css/style.css" />
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Group Project 1 (TODO - Update title with finalized project)</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.4/css/bulma.min.css">
+	<link rel="stylesheet" href="./assets/css/style.css" />
 </head>
 <body>
 
-    <div class="flex-row align-start align-stretch-md align-content-start align-content-stretch-md min-100-vh bg-primary">
-      <div class="col-12 col-md-3 bg-light p-3">
-        <h1 class="text-primary">Artists Search</h1>
-        <form id="search-form" class="mb-2">
-          <input id="search-input" class="form-input w-100" type="text" placeholder="Search!">
-          <select id="format-input" class="form-input w-100">
-            <option value="" disabled selected>Select a format...</option>
-            <option value="wiki">Biography</option>
-            <option value="video">Video</option>
-          </select>
-          <button type="submit" class="btn btn-info btn-block">Search</button>
-        </form>
-  
-      </div>√
-  
-      <div class="col-12 col-md-9 p-3 text-light">
-        <h2>Showing results for <span id="result-text"></span></h2>
-        <div id="result-content"></div>
-      </div>
-    </div>
+	<!-- This section contains the search input form for the artist name -->
+	<section class="">
+		<div class="">
+			<h1 class="text-primary">Artists Search</h1>
+			<form id="search-form" class="mb-2">
+				<input id="search-input" class="" type="text" placeholder="Search!">
+				<!-- <select id="format-input" class="">
+					<option value="" disabled selected>Select a format...</option>
+					<option value="artist">Artist</option>
+					<option value="album">Album</option>
+					<option value="track">Track</option>
+				</select> -->
+				<button type="submit" class="button is-rounded is-primary">Search</button>
+			</form>
+		</div>
+	</section>
 
+	<!-- Container for search results from the Napster API call -->
+	<!-- Taken from example: https://codepen.io/karanrajpal14/pen/eKzbaw -->
+	<section class="section">
+		<div class="container" id="search-results">
+		<!-- Artist Cards will be appended to this container using JavaScript -->
 
+		<!-- TODO: Determine if we want to include album/song search results,
+					or if we want to only include those as additional info parameters -->
+
+		<!-- TODO: Make a hidden HTML Element that shows "More Info" when
+					the artist is selected. Alternatively, make a new page that
+					we switch to (like the example from class with two .html and
+					two .js files.) -->
+
+		<!-- TODO: In the "More Info" section, provide Wiki API results,
+					song results, and album results -->
+		
+		</div>
+	</section>
+
+	<!-- Should the user choose, save the search information to a list, as
+			 well as local storage. Append the saved artists to this container. -->
+	<section class="section">
+		<h1>Saved Artists</h1>
+		<div class="container" id="saved-artists">
+			<!-- Saved artist cards will be appended to this container using JavaScript -->
+
+			<!-- TODO: Can we make the appended elements styled as a vertical list
+					 or column instead of a row? -->
+		
+		</div>
+	</section>
+
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
   <script src="./assets/js/script.js"></script>     
-
     
 </body>
 </html>
