@@ -1,9 +1,4 @@
 $(document).ready(function () {
-  // TODO: Move all contents to jquery
-  //  - DOM selection (query selector)
-  //  - listening events
-  //  - element creation
-
   // Globals
   const NAPSTER_API_KEY = "ZTE3MmM4YTItMzY0Ni00OGM1LWE2NDUtMDc2ZDgyNGUwMGQz";
 
@@ -15,15 +10,23 @@ $(document).ready(function () {
     },
   };
 
-  // =============================================================================
-  // DOM Objects
-  // TODO: Convert these DOM objects to jquery: //// Done
-  // var searchTerm = document.querySelector("#search-input");
+  // This is Album search for Napster. May be used for future works.
+  // var albumSearchUrl =
+  // "https://api.napster.com/v2.2/search?query=" +
+  // albumSearchInput.split(" ").join("%20") +
+  // "&type=album&per_type_limit=1&apikey=" +
+  // NAPSTER_API_KEY;
+
+  // This is Track search for Napster. May be used for future works.
+  // var trackSearchUrl =
+  // "https://api.napster.com/v2.2/search?query=" +
+  // trackSearchInput.split(" ").join("%20") +
+  // "&type=track&per_type_limit=1&apikey=" +
+  // NAPSTER_API_KEY;
+
   var searchTerm = $("#search-input");
-  var resultTextEl = $("#result-text");
-  // var resultContentEl = document.querySelector('#result-content');
+  // var resultTextEl = $("#result-text");
   var searchFormEl = $("#search-form");
-  // var formatEl = document.querySelector('#format-input');
   var searchResultsEl = $("#search-results");
   var savedArtistsEl = $("#saved-artists");
 
@@ -38,8 +41,6 @@ $(document).ready(function () {
     fetch(wikiSearchUrl, WIKI_ENDPOINT_OPTIONS)
       .then((response) => response.json())
       .then((response) => {
-        console.log("Wiki artist search: ", response);
-
         // The artist card footer has an ID of `#<artist.id>-wiki`.
         // Grab that element and assign the `href` with the URL from the Wiki
         var artistWikiEl = $("#" + artistId + "-wiki");
@@ -65,9 +66,6 @@ $(document).ready(function () {
     // with the event.
     localStorage.removeItem(event.data.artistId);
   }
-
-  // TODO: investigate using the stored data to make a new card instead
-  //  of calling the Napster API again. (see function below)
 
   // Populate the artist search results container by making another call to
   //  the Napster API. Only return the first search result.
@@ -286,14 +284,8 @@ $(document).ready(function () {
         // Generate new cards for each artist in the response.
         // To limit the number of artists, provide a different value for
         //  the `numberOfResponses` argument to this function.
-        var loopCounter = 0;
-        for (var artistData of data.artists) {
-          // Add a counter for debugging purposes.
-          // TODO: delete this prior to submitting the assignment
-          loopCounter += 1;
-          console.log("On loop: ", loopCounter);
-          console.log("Artist Data: ", artistData);
 
+        for (var artistData of data.artists) {
           // The artist ID will be used for Element IDs such that
           // the appropriate element can be populated asynchronously
           var artistId = artistData.id.replace(".", "-");
@@ -316,86 +308,21 @@ $(document).ready(function () {
       });
   }
 
-  // Currently not used/working!
-  // Album Search
-  function searchNapsterAlbum(albumSearchInput) {
-    var albumSearchUrl =
-      "https://api.napster.com/v2.2/search?query=" +
-      albumSearchInput.split(" ").join("%20") +
-      "&type=album&per_type_limit=1&apikey=" +
-      NAPSTER_API_KEY;
-
-    fetch(albumSearchUrl)
-      .then(function (response) {
-        if (!response.ok) {
-          throw response.json();
-        }
-        return response.json();
-      })
-      .then(function (responseData) {
-        console.log(responseData);
-      })
-      .catch(function (error) {
-        console.error(error);
-      });
-  }
-
-  // Currently not used/working!
-  // Track Seach
-  function searchNapsterTrack(trackSearchInput) {
-    var trackSearchUrl =
-      "https://api.napster.com/v2.2/search?query=" +
-      trackSearchInput.split(" ").join("%20") +
-      "&type=track&per_type_limit=1&apikey=" +
-      NAPSTER_API_KEY;
-
-    fetch(trackSearchUrl)
-      .then(function (response) {
-        if (!response.ok) {
-          throw response.json();
-        }
-        return response.json();
-      })
-      .then(function (responseData) {
-        console.log(responseData);
-      })
-      .catch(function (error) {
-        console.error(error);
-      });
-  }
-
   // =============================================================================
   // Capture user search input and make appropriate API calls
   function handleSearchFormSubmit(event) {
     event.preventDefault();
 
     var searchInputVal = searchTerm.val();
-    console.log(searchInputVal);
-    // var formatInputVal = formatEl.value;
-    // console.log(formatInputVal);
-
     if (!searchInputVal) {
       console.error("You need a search input value!");
       return;
     }
     searchNapsterArtist(searchInputVal, 3);
-
-    // // Currently not used/working!
-    // else if (formatInputVal === "album") {
-    //     searchNapsterAlbum(searchInputVal);
-    //     console.log("Calling Napster API for album search: ", formatInputVal)
-    // }
-    // // Currently not used/working!
-    // else if (formatInputVal === "track") {
-    //     searchNapsterTrack(searchInputVal);
-    //     console.log("Calling Napster API for track search: ", formatInputVal)
-    // }
   }
 
   // Initialize the page using artist information from local storage.
   function init() {
-    console.log("Local storage getting called.");
-
     // Used local storage to pre-populate the saved fields
     // The keys are saved as the "artist-id", which is not known at runtime,
     // so loop over all local storage keys and retrieve the associated value.
