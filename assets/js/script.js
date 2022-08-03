@@ -56,7 +56,7 @@ $(document).ready(function () {
   // Based on an event, remove the artist from the "Saved Artists" HTML
   //  container, as well as from local storage.
   function removeArtistFromSearchHistory(event) {
-    // The `event` must have been passed with data used to
+    // The `event` object be passed to this function with the data used to
     // retrieve the appropriate element based on ID.
     var elementToRemove = $("#" + event.data.cardId);
 
@@ -276,6 +276,8 @@ $(document).ready(function () {
     // First, clear out any existing contents for the container
     searchResultsEl.empty();
 
+    // Filter the number of responses to the artist search
+    //  based on the function argument.
     var artistSearchUrl =
       "https://api.napster.com/v2.2/search?query=" +
       artistSearchInput.split(" ").join("%20") +
@@ -298,7 +300,6 @@ $(document).ready(function () {
         // Generate new cards for each artist in the response.
         // To limit the number of artists, provide a different value for
         //  the `numberOfResponses` argument to this function.
-
         for (var artistData of data.artists) {
           // The artist ID will be used for Element IDs such that
           // the appropriate element can be populated asynchronously
@@ -328,6 +329,8 @@ $(document).ready(function () {
     event.preventDefault();
 
     var searchInputVal = searchTerm.val();
+    
+    // Pop a modal if the user didn't provide any search input.
     if (!searchInputVal) {
       console.error("You need a search input value!");
       searchModalEl.addClass('is-active');
@@ -343,10 +346,13 @@ $(document).ready(function () {
     // so loop over all local storage keys and retrieve the associated value.
     var localKeys = Object.keys(localStorage);
 
+    // The saved search container is hidden by default. Show the container
+    //  if the local storage is not empty (i.e., artist has been saved).
     if (localStorage.length !== 0) {
       savedArtistsContainerEl.show();
     };
 
+    // Use the local storage data to re-populate the page (saved search only).
     for (var artistId of localKeys) {
       var artistData = JSON.parse(localStorage.getItem(artistId));
       addArtistToSavedList(artistId, artistData);
@@ -370,4 +376,5 @@ $(document).ready(function () {
 
   // Initialize the page to retrieve the local storage data for the saved searches
   init();
+
 });

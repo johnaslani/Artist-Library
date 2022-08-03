@@ -23,18 +23,12 @@
 	height: max-content;
 }
 
-.card-footer{
-	color: black;
-}
-
-.card-footer-item{
-	border-color: black;
-}
-
+/* Class used for the default content color */
 .default-color {
 	background-color: var(--pink-color);
 }
 
+/* Hide the "Saved Artists" container if empty */
 .section-saved-artists {
 	display: none;
 }
