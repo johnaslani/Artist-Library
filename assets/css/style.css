@@ -1,9 +1,40 @@
+/* Global Vars */
+:root {
+	--pink-color: rgb(246, 227, 230);
+}
+
+/* Modifications to the entire page */
+.main-container{
+	background-color: aqua;
+	min-height: 100vh;
+}
+
+/* Modify the Bulma container class to adjust the card size*/
 .container{
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(400px,1fr));
+	grid-template-columns: repeat(auto-fill, minmax(350px,1fr));
 	grid-gap: 0.5em;
 }
 
+/* Modify the Bulma Card class to adjust height */
 .card{
+	background-color: var(--pink-color);
+	color: black;
 	height: max-content;
+}
+
+.card-footer{
+	color: black;
+}
+
+.card-footer-item{
+	border-color: black;
+}
+
+.default-color {
+	background-color: var(--pink-color);
+}
+
+.section-saved-artists {
+	display: none;
 }

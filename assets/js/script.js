@@ -25,10 +25,10 @@ $(document).ready(function () {
   // NAPSTER_API_KEY;
 
   var searchTerm = $("#search-input");
-  // var resultTextEl = $("#result-text");
   var searchFormEl = $("#search-form");
   var searchResultsEl = $("#search-results");
   var savedArtistsEl = $("#saved-artists");
+  var savedArtistsContainerEl = $("#saved-artists-container");
 
   // =============================================================================
   // Use the Wiki briefs API to get the Wiki link to the artist.
@@ -65,6 +65,12 @@ $(document).ready(function () {
     // Remove the artist from local storage. Again, we need data passed in
     // with the event.
     localStorage.removeItem(event.data.artistId);
+    
+    // Hide the container if all of the artists have been removed from the
+    // saved search
+    if (localStorage.length === 0) {
+      savedArtistsContainerEl.hide();
+    };
   }
 
   // Populate the artist search results container by making another call to
@@ -87,6 +93,9 @@ $(document).ready(function () {
     if (!artistIsAlreadySaved) {
       localStorage.setItem(artistId, JSON.stringify(artistData));
     }
+    
+    // Make sure the container is showing
+    savedArtistsContainerEl.show();
   }
 
   // Create a new Bulma Card that contains different footer information
@@ -143,8 +152,12 @@ $(document).ready(function () {
     // Function requires for the event object to contain the artist data
     var artistId = event.data.artistId;
     var artistData = event.data.artistData;
-    addArtistToSavedList(artistId, artistData);
-    saveArtistToLocalStorage(artistId, artistData);
+    
+    // Don't add an item to the saved list more than once
+    if (localStorage.getItem(artistId) === null) {
+      addArtistToSavedList(artistId, artistData);
+      saveArtistToLocalStorage(artistId, artistData);
+    }
   }
 
   // Generate the DOM elements for an artist card
@@ -328,10 +341,14 @@ $(document).ready(function () {
     // so loop over all local storage keys and retrieve the associated value.
     var localKeys = Object.keys(localStorage);
 
+    if (localStorage.length !== 0) {
+      savedArtistsContainerEl.show();
+    };
+
     for (var artistId of localKeys) {
       var artistData = JSON.parse(localStorage.getItem(artistId));
       addArtistToSavedList(artistId, artistData);
-    }
+    };
   }
 
   // Event listener for the artist search form that initializes the search

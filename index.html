@@ -4,24 +4,28 @@
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Group Project 1 (TODO - Update title with finalized project)</title>
+	<title>Artist Search</title>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.4/css/bulma.min.css">
 	<link rel="stylesheet" href="./assets/css/style.css" />
 </head>
-<body>
+<body class="main-container">
 
-	<!-- This section contains the search input form for the artist name -->
-	<section class="">
-		<div class="">
-			<h1 class="text-primary">Artists Search</h1>
-			<form id="search-form" class="mb-2">
-				<input id="search-input" class="" type="text" placeholder="Search!">
-				<button type="submit" class="btn btn-info btn-block">Search</button>
-			</form>
+	<!-- Title content -->
+	<section class="section">
+		<div class="has-text-centered">
+			<h1 class="title">Artist Search</h1>
 		</div>
 	</section>
 
-	<!-- Container for search results from the Napster API call -->
+	<!-- This section contains the search input form for the artist name -->
+	<section class="section level">
+		<form id="search-form" class="level-item">
+			<input id="search-input" class="input is-large default-color" type="text" placeholder="(Input Artist Name)">
+			<button type="submit" class="button is-dark is-large">Search</button>
+		</form>
+	</section>
+
+	<!-- Use a Container for search results from the Napster API call -->
 	<!-- Taken from example: https://codepen.io/karanrajpal14/pen/eKzbaw -->
 	<section class="section">
 		<div class="container" id="search-results">
@@ -31,18 +35,16 @@
 
 	<!-- Should the user choose, save the search information to a list, as
 			 well as local storage. Append the saved artists to this container. -->
-	<section class="section">
-		<h1>Saved Artists</h1>
-		<div class="container" id="saved-artists">
-			<!-- Saved artist cards will be appended to this container using JavaScript -->
+	<section class="section section-saved-artists" id="saved-artists-container">
+		<div class="has-text-centered">
+			<h2 class="title">Saved Artists</h2>
+		</div>
+		<div class="columns is-mobile">
 
-			<!-- TODO: Can we make the appended elements styled as a vertical list
-					 or column instead of a row? 
-					
-					 #### This is a good idea. Let's do it.
-					
-					-->
-		
+			<div class="container column is-one-third is-offset-one-third" id="saved-artists">
+				<!-- Saved artist cards will be appended to this container using JavaScript -->
+
+			</div>
 		</div>
 	</section>
 
