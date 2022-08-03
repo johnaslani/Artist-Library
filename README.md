@@ -28,8 +28,8 @@ Made by Ryan Whitmore, Maryam Muska, Blessed E. Adodo, and John Aslani, AKA Inte
 
 ## Link to deployed application
 
-https://johnaslani.github.io/staffing/
+https://johnaslani.github.io/Artist-Library/
 
 ## Link to GitHub repo:
 
-https://github.com/johnaslani/staffing
+https://github.com/johnaslani/Artist-Library
