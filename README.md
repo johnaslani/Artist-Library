@@ -1,4 +1,4 @@
-# Artist search
+# Artist Search
 
 ## Search for your favorite music artist!
 
@@ -15,8 +15,8 @@ As a user searching for music, When I find an artist I like, I want to save the 
 ## Technologies used
 
 Third party APIs: Wiki Briefs API & Napster API
-jQuerywas used to dynamically create HTML content
-CSS Framework: Bluma
+jQuery was used to dynamically create HTML content
+CSS Framework: Bulma
 
 ## Contributions
 

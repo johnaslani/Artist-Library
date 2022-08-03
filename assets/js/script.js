@@ -25,10 +25,11 @@ $(document).ready(function () {
   // NAPSTER_API_KEY;
 
   var searchTerm = $("#search-input");
-  // var resultTextEl = $("#result-text");
   var searchFormEl = $("#search-form");
   var searchResultsEl = $("#search-results");
   var savedArtistsEl = $("#saved-artists");
+  var savedArtistsContainerEl = $("#saved-artists-container");
+  var searchModalEl = $('#search-modal');
 
   // =============================================================================
   // Use the Wiki briefs API to get the Wiki link to the artist.
@@ -55,7 +56,7 @@ $(document).ready(function () {
   // Based on an event, remove the artist from the "Saved Artists" HTML
   //  container, as well as from local storage.
   function removeArtistFromSearchHistory(event) {
-    // The `event` must have been passed with data used to
+    // The `event` object be passed to this function with the data used to
     // retrieve the appropriate element based on ID.
     var elementToRemove = $("#" + event.data.cardId);
 
@@ -65,6 +66,12 @@ $(document).ready(function () {
     // Remove the artist from local storage. Again, we need data passed in
     // with the event.
     localStorage.removeItem(event.data.artistId);
+    
+    // Hide the container if all of the artists have been removed from the
+    // saved search
+    if (localStorage.length === 0) {
+      savedArtistsContainerEl.hide();
+    };
   }
 
   // Populate the artist search results container by making another call to
@@ -87,6 +94,9 @@ $(document).ready(function () {
     if (!artistIsAlreadySaved) {
       localStorage.setItem(artistId, JSON.stringify(artistData));
     }
+    
+    // Make sure the container is showing
+    savedArtistsContainerEl.show();
   }
 
   // Create a new Bulma Card that contains different footer information
@@ -143,8 +153,12 @@ $(document).ready(function () {
     // Function requires for the event object to contain the artist data
     var artistId = event.data.artistId;
     var artistData = event.data.artistData;
-    addArtistToSavedList(artistId, artistData);
-    saveArtistToLocalStorage(artistId, artistData);
+    
+    // Don't add an item to the saved list more than once
+    if (localStorage.getItem(artistId) === null) {
+      addArtistToSavedList(artistId, artistData);
+      saveArtistToLocalStorage(artistId, artistData);
+    }
   }
 
   // Generate the DOM elements for an artist card
@@ -262,6 +276,8 @@ $(document).ready(function () {
     // First, clear out any existing contents for the container
     searchResultsEl.empty();
 
+    // Filter the number of responses to the artist search
+    //  based on the function argument.
     var artistSearchUrl =
       "https://api.napster.com/v2.2/search?query=" +
       artistSearchInput.split(" ").join("%20") +
@@ -284,7 +300,6 @@ $(document).ready(function () {
         // Generate new cards for each artist in the response.
         // To limit the number of artists, provide a different value for
         //  the `numberOfResponses` argument to this function.
-
         for (var artistData of data.artists) {
           // The artist ID will be used for Element IDs such that
           // the appropriate element can be populated asynchronously
@@ -314,8 +329,11 @@ $(document).ready(function () {
     event.preventDefault();
 
     var searchInputVal = searchTerm.val();
+    
+    // Pop a modal if the user didn't provide any search input.
     if (!searchInputVal) {
       console.error("You need a search input value!");
+      searchModalEl.addClass('is-active');
       return;
     }
     searchNapsterArtist(searchInputVal, 3);
@@ -328,10 +346,17 @@ $(document).ready(function () {
     // so loop over all local storage keys and retrieve the associated value.
     var localKeys = Object.keys(localStorage);
 
+    // The saved search container is hidden by default. Show the container
+    //  if the local storage is not empty (i.e., artist has been saved).
+    if (localStorage.length !== 0) {
+      savedArtistsContainerEl.show();
+    };
+
+    // Use the local storage data to re-populate the page (saved search only).
     for (var artistId of localKeys) {
       var artistData = JSON.parse(localStorage.getItem(artistId));
       addArtistToSavedList(artistId, artistData);
-    }
+    };
   }
 
   // Event listener for the artist search form that initializes the search
@@ -339,6 +364,17 @@ $(document).ready(function () {
     handleSearchFormSubmit(event);
   });
 
+  // Close the search modal.
+  // Example from the Bulma docs:
+  //  https://bulma.io/documentation/components/modal/#javascript-implementation-example
+  function closeModal(event) {
+    searchModalEl.removeClass('is-active');
+  };
+
+  // Event listener to close the search modal
+  searchModalEl.on('click', closeModal);
+
   // Initialize the page to retrieve the local storage data for the saved searches
   init();
+
 });
