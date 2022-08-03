@@ -29,6 +29,7 @@ $(document).ready(function () {
   var searchResultsEl = $("#search-results");
   var savedArtistsEl = $("#saved-artists");
   var savedArtistsContainerEl = $("#saved-artists-container");
+  var searchModalEl = $('#search-modal');
 
   // =============================================================================
   // Use the Wiki briefs API to get the Wiki link to the artist.
@@ -329,6 +330,7 @@ $(document).ready(function () {
     var searchInputVal = searchTerm.val();
     if (!searchInputVal) {
       console.error("You need a search input value!");
+      searchModalEl.addClass('is-active');
       return;
     }
     searchNapsterArtist(searchInputVal, 3);
@@ -355,6 +357,16 @@ $(document).ready(function () {
   searchFormEl.on("submit", function (event) {
     handleSearchFormSubmit(event);
   });
+
+  // Close the search modal.
+  // Example from the Bulma docs:
+  //  https://bulma.io/documentation/components/modal/#javascript-implementation-example
+  function closeModal(event) {
+    searchModalEl.removeClass('is-active');
+  };
+
+  // Event listener to close the search modal
+  searchModalEl.on('click', closeModal);
 
   // Initialize the page to retrieve the local storage data for the saved searches
   init();
